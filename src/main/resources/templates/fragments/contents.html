@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Table Management</title>
+    <!-- Add any external stylesheets or internal styles here -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .primary-bg {
+            background-color: #F0D7A7;
+        }
+        .secondary-bg {
+            background-color: #8D4821;
+        }
+        .primary-text {
+            color: #F0D7A7;
+        }
+        .secondary-text {
+            color: #8D4821;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 50;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 50%;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Main Content Wrapper for Table Status and Tables -->
+<div id="tableContent" th:fragment="tables(tableList, stats)">
+    <!-- Section: Display current status of tables -->
+    <div class="sub-section p-2 primary-bg rounded-lg shadow-md mb-2">
+        <h2 class="text-2xl secondary-text font-semibold mb-4">
+            Current Status
+        </h2>
+
+        <!-- Grid Layout for Two Columns -->
+        <div class="grid grid-cols-4 gap-6">
+
+            <!-- Total number of tables -->
+            <div class="information-wrapper text-lg flex flex-col py-2 bg-white rounded-md shadow px-4">
+                <label class="secondary-text font-bold">Total:</label>
+                <span th:text="${stats.totalCount}" class="text-gray-900 font-semibold"></span>
+            </div>
+
+            <!-- Available tables count -->
+            <div class="information-wrapper text-lg flex flex-col py-2 bg-white rounded-md shadow px-4">
+                <label class="secondary-text font-bold">Available:</label>
+                <span th:text="${stats.availableCount}" class="text-secondary-bg font-semibold"></span>
+            </div>
+
+            <!-- Full tables count -->
+            <div class="information-wrapper text-lg flex flex-col py-2 bg-white rounded-md shadow px-4">
+                <label class="secondary-text font-bold">Full:</label>
+                <span th:text="${stats.fullCount}" class="text-secondary-bg font-semibold"></span>
+            </div>
+
+            <!-- Out of service tables count -->
+            <div class="information-wrapper text-lg flex flex-col py-2 bg-white rounded-md shadow px-4">
+                <label class="secondary-text font-bold">Out of service:</label>
+                <span th:text="${stats.outOfServiceCount}" class="text-secondary-bg font-semibold"></span>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- End of current status section -->
+
+    <!-- Section: Display each table with its status -->
+    <div class="sub-section primary-bg rounded-lg shadow-md p-2">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Loop through each table in tableList -->
+            <div th:each="table : ${tableList}"
+                 class="table-box bg-gray-50 p-4 rounded-md shadow-lg transition transform hover:-translate-y-1 hover:shadow-xl cursor-pointer flex flex-col justify-between items-center"
+                 style="width: 150px; height: 100px;"
+            th:onclick="'javascript:processUpdateTableStatus('+${table.tableId}+')'"
+            th:classappend="${table.status.getStatusText().toLowerCase().replaceAll(' ','-')}">
+
+            <!-- Table ID -->
+            <span class="block text-lg font-bold text-secondary-text mb-2" th:text="'Table ' + ${table.tableId}"></span>
+
+            <!-- Table status -->
+            <span class="block text-sm font-semibold"
+                  th:classappend="${table.status.getStatusText() == 'Full' ? 'text-red-500' : (table.status.getStatusText() == 'Available' ? 'text-green-500' : 'text-yellow-500')}"
+                  th:text="${table.status.getStatusText()}"></span>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+<!-- End of main content wrapper for tables -->
+
+<!-- Modal (Popup) for cart and order items -->
+<div class="modal-bg fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4" th:fragment="orderItems(food, beverages)">
+
+    <!-- Cart content inside the modal -->
+    <div id="cart" class="bg-white rounded-lg shadow-lg p-6 w-full max-w-3xl" th:fragment="cart">
+
+        <!-- Cart header -->
+        <div class="cart-header flex justify-between items-center mb-4">
+            <h2 class="text-xl font-bold text-gray-800">Order</h2>
+            <button class="text-red-500 hover:text-red-700" onclick="closeModal();">✕</button>
+        </div>
+
+        <!-- Items added to the cart -->
+        <div id="itemList" class="space-y-4">
+            <!-- Dynamic content here -->
+        </div>
+
+        <!-- Total cart price and clear cart option -->
+        <div id="cartInfo" class="flex justify-between items-center mt-6">
+            <label class="text-lg font-semibold text-gray-700">Total: <span id="cartPrice" class="text-green-500">0</span><span id="priceUnit"> </span></label>
+            <a onclick="clearCart();" class="text-blue-500 hover:text-blue-700 cursor-pointer">Clear Cart</a>
+        </div>
+
+        <!-- Finalize the cart (Table number input and Save button) -->
+        <div id="cartFinalize" class="mt-4 flex justify-between items-center">
+            <div>
+                <!-- Input field for the table number -->
+                <input type="number" placeholder="Table" id="tableNumberField" class="w-20 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div id="cartControls">
+                <!-- Button to save the order -->
+                <button id="saveOrderButton" class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg">Save</button>
+            </div>
+        </div>
+    </div>
+    <!-- End of cart content -->
+
+    <!-- Section to display food and beverages for selection -->
+    <div id="orderControls" class="bg-[#F0D7A7] p-8 rounded-lg shadow-2xl mt-6">
+        <div class="tableWrapper">
+            <table class="w-full text-left">
+                <thead>
+                <tr class="secondary-bg text-white">
+                    <th class="py-3 px-6">Food</th>
+                    <th class="py-3 px-6">Beverage</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="align-top w-1/2">
+                        <!-- Table for food items -->
+                        <table class="w-full text-left bg-white rounded-md shadow-lg">
+                            <thead class="bg-[#F0D7A7] text-[#8D4821] font-semibold">
+                            <tr>
+                                <th class="py-2 px-4">ID</th>
+                                <th class="py-2 px-4">Name</th>
+                                <th class="py-2 px-4">Price</th>
+                                <th class="py-2 px-4">Stock</th>
+                                <th class="py-2 px-4"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="food : ${foods}" class="border-t hover:bg-[#F0D7A7]/30 transition-colors">
+                                <td class="py-2 px-4" th:text="${food.productId}"></td>
+                                <td class="py-2 px-4" th:text="${food.name}"></td>
+                                <td class="py-2 px-4" th:text="${food.price}"></td>
+                                <td class="py-2 px-4" th:text="${food.stock}"></td>
+                                <td class="py-2 px-4">
+                                    <!-- Add food item to cart button -->
+                                    <a class="text-[#8D4821] hover:text-[#F0D7A7] cursor-pointer" th:onclick="'javascript:addItemToCart('+${food.productId}+')'">Add</a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                    <td class="align-top w-1/2">
+                        <!-- Table for beverage items -->
+                        <table class="w-full text-left bg-white rounded-md shadow-lg">
+                            <thead class="bg-[#F0D7A7] text-[#8D4821] font-semibold">
+                            <tr>
+                                <th class="py-2 px-4">ID</th>
+                                <th class="py-2 px-4">Name</th>
+                                <th class="py-2 px-4">Price</th>
+                                <th class="py-2 px-4">Stock</th>
+                                <th class="py-2 px-4"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="beverage : ${beverages}" class="border-t hover:bg-[#F0D7A7]/30 transition-colors">
+                                <td class="py-2 px-4" th:text="${beverage.productId}"></td>
+                                <td class="py-2 px-4" th:text="${beverage.name}"></td>
+                                <td class="py-2 px-4" th:text="${beverage.price}"></td>
+                                <td class="py-2 px-4" th:text="${beverage.stock}"></td>
+                                <td class="py-2 px-4">
+                                    <!-- Add beverage item to cart button -->
+                                    <a class="text-[#8D4821] hover:text-[#F0D7A7] cursor-pointer" th:onclick="'javascript:addItemToCart('+${beverage.productId}+')'">Add</a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

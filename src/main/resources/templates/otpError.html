@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Verification Error</title>
+    <!-- Include Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* Custom Primary, Secondary and Error Colors */
+        .bg-primary {
+            background-color: #F0D7A7;
+        }
+        .bg-secondary {
+            background-color: #8D4821;
+        }
+        .text-secondary {
+            color: #8D4821;
+        }
+        .border-secondary {
+            border-color: #8D4821;
+        }
+        .text-error {
+            color: #e74c3c; /* Red color for errors */
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+<!-- Main wrapper -->
+<div class="flex min-h-screen">
+    <!-- Left: Error Message Section -->
+    <div class="w-full md:w-1/2 flex items-center justify-center p-8 bg-white">
+        <div class="w-full max-w-sm">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold text-error mb-4">Error</h2>
+                <p class="text-lg mb-4" th:text="${message}">Invalid OTP. Please try again.</p>
+                <!-- Back Button -->
+                <button onclick="window.history.back()" class="bg-secondary text-white py-2 px-4 rounded hover:bg-primary focus:outline-none focus:bg-secondary">
+                    Go Back
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right: Image Section -->
+    <div class="hidden md:block md:w-1/2 h-screen">
+        <img src="logsig.jpg" alt="Background Image" class="object-cover w-full h-full">
+    </div>
+</div>
+</body>
+</html>

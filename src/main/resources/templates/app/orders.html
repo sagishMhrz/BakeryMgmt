@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Insights</title>
+    <link rel="stylesheet" href="/css/main.css" th:href="@{/css/main.css}">
+    <link rel="stylesheet" href="/css/orders.css">
+    <link rel="stylesheet" href="/css/modal.css">
+    <link rel="stylesheet" href="/css/cart.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .primary-bg {
+            background-color: #F0D7A7;
+        }
+        .secondary-bg {
+            background-color: #8D4821;
+        }
+        .primary-text {
+            color: #F0D7A7;
+        }
+        .secondary-text {
+            color: #8D4821;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 50;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 50%;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="primary-bg">
+<div class="min-h-screen flex flex-col">
+    <header th:replace="fragments/general :: pageHeader(title=' / Orders', userData=${user})"></header>
+    <div class="flex flex-grow">
+        <nav class="w-1/4 secondary-bg p-4" th:replace="fragments/general :: sideNav"></nav>
+        <main class="flex-grow p-6">
+            <div class="overflow-x-auto shadow-md rounded-lg">
+                <table class="min-w-full bg-white text-left border-collapse border border-gray-300 rounded-lg shadow-lg">
+                    <thead class="secondary-bg text-white uppercase tracking-wider">
+                    <tr>
+                        <th class="px-6 py-3 text-sm font-medium text-center">Order ID</th>
+                        <th class="px-6 py-3 text-sm font-medium text-center">Table Number</th>
+                        <th class="px-6 py-3 text-sm font-medium text-center">Date</th>
+                        <th class="px-6 py-3 text-sm font-medium text-center">Price</th>
+                        <th class="px-6 py-3 text-sm font-medium text-center">Item Count</th>
+                        <th class="px-6 py-3 text-sm font-medium text-center"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="order : ${orders}" class="even:bg-gray-100 odd:bg-white hover:bg-gray-200 transition duration-150 ease-in-out">
+                        <td class="px-6 py-4 text-gray-700 text-center">
+                            <span th:text="${order.orderId}" class="font-semibold"></span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-700 text-center">
+                            <span th:text="${order.table.tableId}" class="font-semibold"></span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-700 text-center">
+                            <span th:text="${#temporals.format(order.orderDate, 'dd-MM-yyyy HH:mm:ss')}" class="font-semibold"></span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-700 text-center">
+                            <span th:text="${order.totalPrice}" class="font-semibold"></span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-700 text-center">
+                            <span th:text="${#lists.size(order.items)}" class="font-semibold"></span>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <a class="inline-block text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg shadow-md transition transform hover:scale-105"
+                               th:href="'/api/order/'+${order.orderId+'/details'}">Details</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Total Cash Section -->
+            <div class="result-detail mt-6 text-right" th:if="${totalCash}">
+                <span class="text-xl font-semibold">Total Cash: </span>
+                <span id="totalCash" class="text-xl font-bold text-secondary-text" th:text="${totalCash}"></span>
+            </div>
+
+            <!-- Filters Section -->
+            <div id="filterControls" class="mt-8 grid gap-6 grid-cols-2">
+                <div class="filterBox bg-white p-4 rounded-lg shadow-md">
+                    <h2 class="text-lg font-semibold mb-4">Filter by Date interval</h2>
+                    <label class="block mb-2">From</label>
+                    <input id="startDate" type="date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+
+                    <label class="block mt-4 mb-2">To</label>
+                    <input id="endDate" type="date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+
+                    <button id="filterByIntervalButton" onclick="filterByDateInterval()" class="mt-4 w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">Filter</button>
+                </div>
+
+                <div class="filterBox bg-white p-4 rounded-lg shadow-md">
+                    <h2 class="text-lg font-semibold mb-4">Filter by Item containing</h2>
+                    <table class="w-full">
+                        <tr>
+                            <th>
+                                <label class="filter-title">Filter</label>
+                            </th>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div th:unless="${#lists.size(items)} == 0" class="dropdown" id="itemList">
+                                    <span class="dropdown-text" id="itemName" th:text="${items[0].name}"></span>
+                                    <div class="dropdown-content">
+                                        <p class="dropdown-item" th:each="product : ${items}" th:text="${product.name}"></p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <button id="filterByItemButton" onclick="filterByItem()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">Filter</button>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+<script src="/js/dropdownUtils.js" th:src="@{/js/dropdownUtils.js}"></script>
+<script src="/js/modalUtils.js" th:src="@{/js/modalUtils.js}"></script>
+<script src="/js/orders.js" th:src="@{/js/orderUtils.js}"></script>
+</body>
+</html>

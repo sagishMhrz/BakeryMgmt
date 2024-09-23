@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Order Details</title>
+
+    <link rel="stylesheet" href="/css/main.css" th:href="@{/css/main.css}">
+    <link rel="stylesheet" href="/css/modal.css" th:href="@{/css/modal.css}">
+    <link rel="stylesheet" href="/css/details.css" th:href="@{/css/details.css}">
+    <link rel="stylesheet" href="/css/orderDetails.css" th:href="@{/css/orderDetails.css}">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        .primary-bg {
+            background-color: #F0D7A7;
+        }
+        .secondary-bg {
+            background-color: #8D4821;
+        }
+        .primary-text {
+            color: #F0D7A7;
+        }
+        .secondary-text {
+            color: #8D4821;
+        }
+    </style>
+</head>
+<body class="primary-bg min-h-screen flex flex-col">
+<div class="flex flex-col flex-grow">
+    <header th:replace="fragments/general :: pageHeader(title=' / Order Details', userData=${user})"></header>
+
+    <div class="flex flex-grow">
+        <nav class="w-1/4 secondary-bg p-4" th:replace="fragments/general :: sideNav(navList = ${navlist})"></nav>
+
+        <main class="flex-grow p-8">
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <div class="tableHeader">
+                    <h2 class="text-2xl font-semibold mb-4" th:text="'Order '+${orderDetails.orderId}"></h2>
+                </div>
+
+                <table class="min-w-full bg-gray-100 rounded-lg shadow-md mb-6">
+                    <tbody>
+                    <tr class="border-b">
+                        <th class="text-left px-6 py-3 text-gray-700 font-medium">ID:</th>
+                        <td class="px-6 py-3 text-gray-600" th:text="${orderDetails.orderId}"></td>
+                        <th class="text-left px-6 py-3 text-gray-700 font-medium">Date:</th>
+                        <td class="px-6 py-3 text-gray-600" th:text="${#temporals.format(orderDetails.orderDate, 'dd-MM-yyyy HH:mm:ss')}"></td>
+                    </tr>
+                    <tr class="border-b">
+                        <th class="text-left px-6 py-3 text-gray-700 font-medium">Table:</th>
+                        <td class="px-6 py-3 text-gray-600" th:text="${orderDetails.table.tableId}"></td>
+                        <th class="text-left px-6 py-3 text-gray-700 font-medium">Price:</th>
+                        <td class="px-6 py-3 text-gray-600" th:text="${orderDetails.totalPrice}"></td>
+                    </tr>
+                    <tr class="bg-gray-200">
+                        <th class="px-6 py-3 text-gray-700 font-semibold">Items</th>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4" colspan="4">
+                            <div class="space-y-4">
+                                <!-- Items list -->
+                                <div class="flex flex-wrap items-center" th:each="item, itemStat : ${orderDetails.items}" th:unless="${item.product == null}">
+                                    <span class="mr-4 font-bold" th:text="${itemStat.index+1}"></span>
+                                    <span class="mr-4 text-gray-700" th:text="'ID: '+${item.product.productId}"></span>
+                                    <span class="mr-4 text-gray-800 font-medium" th:text="${item.product.name}"></span>
+                                    <span class="mr-4 text-gray-700" th:text="'Unit: Rs.'+${item.product.price}"></span>
+                                    <span class="mr-4 text-gray-700" th:text="'x'+${item.quantity}"></span>
+                                    <span class="text-gray-700 font-semibold" th:text="'Total: Rs.' +${item.product.price * item.quantity}"></span>
+                                </div>
+                                <!-- Deleted items -->
+                                <div class="flex items-center text-red-600 italic" th:each="item, itemStat : ${orderDetails.items}" th:if="${item.product == null}">
+                                    <span class="mr-4" th:text="${itemStat.index+1}"></span>
+                                    <span class="mr-4">Deleted Item</span>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <!-- Action buttons -->
+                <div class="flex justify-end space-x-4">
+                    <button id="deleteOrderButton"
+                            th:onclick="'deleteOrder(' + ${orderDetails.orderId} + ')'"
+                            class="px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition duration-150">
+                        Delete Order
+                    </button>
+                    <!-- Modal for Deletion Confirmation -->
+                    <div id="deleteModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-50">
+                        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+                            <h2 class="text-xl font-semibold text-gray-800 mb-4">Delete Order</h2>
+                            <p class="text-gray-600 mb-6">Are you sure you want to delete this order?</p>
+                            <div class="flex justify-end space-x-4">
+                                <button id="cancelDelete" class="px-4 py-2 bg-gray-300 text-gray-800 font-semibold rounded-lg hover:bg-gray-400 transition duration-150">
+                                    Cancel
+                                </button>
+                                <button id="confirmDelete" class="px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition duration-150">
+                                    Confirm
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script src="/js/dropdownUtils.js"></script>
+<script src="/js/modalUtils.js"></script>
+<script src="/js/orderUtils.js"></script>
+</body>
+</html>

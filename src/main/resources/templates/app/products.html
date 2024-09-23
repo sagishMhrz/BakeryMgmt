@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Items</title>
+
+    <link rel="stylesheet" href="/css/main.css" th:href="@{/css/main.css}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .primary-bg {
+            background-color: #F0D7A7;
+        }
+        .secondary-bg {
+            background-color: #8D4821;
+        }
+        .primary-text {
+            color: #F0D7A7;
+        }
+        .secondary-text {
+            color: #8D4821;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 50;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 50%;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="primary-bg">
+<div class="min-h-screen flex flex-col">
+    <header th:replace="fragments/general :: pageHeader(title=' / Items', userData=${user})"></header>
+    <div class="flex flex-grow">
+        <nav class="w-1/4 secondary-bg p-4" th:replace="fragments/general :: sideNav"></nav>
+        <main class="flex-grow p-6">
+            <div class="overflow-x-auto shadow-md rounded-lg">
+                <table class="min-w-full bg-white text-left border-collapse border border-gray-300 rounded-lg shadow-lg">
+                    <thead class="secondary-bg text-white uppercase tracking-wider">
+                    <tr>
+                        <th class="px-6 py-3 text-sm font-medium"></th>
+                        <th class="px-6 py-3 text-sm font-medium">
+                            <label onclick="window.location='/products?sort=id'" class="cursor-pointer hover:underline">ID</label>
+                        </th>
+                        <th class="px-6 py-3 text-sm font-medium">
+                            <label onclick="window.location='/products?sort=name'" class="cursor-pointer hover:underline">Name</label>
+                        </th>
+                        <th class="px-6 py-3 text-sm font-medium">
+                            <label onclick="window.location='/products?sort=type'" class="cursor-pointer hover:underline">Type</label>
+                        </th>
+                        <th class="px-6 py-3 text-sm font-medium">
+                            <label onclick="window.location='/products?sort=stock'" class="cursor-pointer hover:underline">Stock</label>
+                        </th>
+                        <th class="px-6 py-3 text-sm font-medium">
+                            <label onclick="window.location='/products?sort=price'" class="cursor-pointer hover:underline">Price</label>
+                        </th>
+                        <th class="px-6 py-3 text-sm font-medium"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="product : ${items}" class="even:bg-gray-100 odd:bg-white hover:bg-gray-200 transition duration-150 ease-in-out">
+                        <td class="px-6 py-4 text-gray-700">
+                            <span th:text="${productStat.index+1}" class="product-index font-semibold"></span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-700">
+                            <span th:text="${product.productId}" class="product-id"></span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-700">
+                            <span th:text="${product.name}" class="product-name"></span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-700">
+                            <span th:text="${product.itemType}" class="product-type"></span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-700">
+                            <span th:text="${product.stock}" class="product-stock"></span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-700">
+                            <span th:text="${product.price}" class="product-price"></span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <a class="inline-block text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg shadow-md transition transform hover:scale-105"
+                               th:href="'api/product/'+${product.productId}+'/details'">Details</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Modal Trigger -->
+            <div id="itemControls" class="mt-4 text-right">
+                <button id="createItemButton" class="inline-block text-white secondary-bg hover:bg-opacity-90 px-4 py-2 rounded ml-auto">Create New</button>
+            </div>
+
+            <!-- Modal Structure -->
+            <div id="itemModal" class="modal">
+                <div class="modal-content">
+                    <span id="closeModal" class="float-right cursor-pointer">&times;</span>
+                    <form id="itemForm" th:action="@{/api/product/create}" method="post" enctype="multipart/form-data" class="bg-white p-6 rounded-lg shadow-md space-y-4">
+                        <div class="form-header mb-4">
+                            <h2 class="form-title text-2xl font-semibold text-gray-800">Create Item</h2>
+                        </div>
+                        <div class="form-body space-y-4">
+                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                <div class="flex flex-col space-y-2">
+                                    <label for="name" class="text-gray-700 font-medium">Name:</label>
+                                    <input id="name" type="text" minlength="1" name="name" placeholder="Name" required class="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                                </div>
+                                <div class="flex flex-col space-y-2">
+                                    <label for="type" class="text-gray-700 font-medium">Type:</label>
+                                    <input id="type" type="text" minlength="3" name="type" placeholder="food/beverage" required class="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                                </div>
+                                <div class="flex flex-col space-y-2">
+                                    <label for="price" class="text-gray-700 font-medium">Price:</label>
+                                    <input id="price" type="number" min="0" step="0.01" name="price" placeholder="0.0" required class="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                                </div>
+                                <div class="flex flex-col space-y-2">
+                                    <label for="stock" class="text-gray-700 font-medium">Stock:</label>
+                                    <input id="stock" type="number" min="0" name="stock" placeholder="0" required class="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                                </div>
+                                <div class="flex flex-col space-y-2">
+                                    <label for="image" class="text-gray-700 font-medium">Product Image:</label>
+                                    <input type="file" name="file" id="image" accept="image/*" required
+                                           class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-secondary">
+                                </div>
+<!--                                <div class="flex items-center space-x-2 col-span-2">-->
+<!--                                    <input name="isStockRequired" type="checkbox" id="isStockRequired" value="true" class="h-5 w-5 text-green-500 border-gray-300 rounded">-->
+<!--                                    <label for="isStockRequired" class="text-gray-700 font-medium">It's a stocked product</label>-->
+<!--                                </div>-->
+                            </div>
+                        </div>
+                        <div class="form-footer mt-6 flex space-x-4">
+                            <!-- Save button with JavaScript handling for custom logic -->
+                            <button type="button" onclick="saveItemFromFormData();" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                Save
+                            </button>
+                            <!-- Reset button to clear form fields -->
+                            <input type="reset" value="Reset" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500">
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<!-- Script to toggle the modal -->
+<script>
+    document.getElementById('createItemButton').onclick = function () {
+        document.getElementById('itemModal').style.display = 'block';
+    }
+    document.getElementById('closeModal').onclick = function () {
+        document.getElementById('itemModal').style.display = 'none';
+    }
+    window.onclick = function (event) {
+        if (event.target == document.getElementById('itemModal')) {
+            document.getElementById('itemModal').style.display = 'none';
+        }
+    }
+</script>
+
+<script src="/js/dropdownUtils.js" th:src="@{/js/dropdownUtils.js}"></script>
+<script src="/js/modalUtils.js" th:src="@{/js/modalUtils.js}"></script>
+<script src="/js/itemUtils.js" th:src="@{/js/itemUtils.js}"></script>
+</body>
+</html>

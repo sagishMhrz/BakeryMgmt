@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en" xmlsn="www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Insights</title>
+    <link rel="stylesheet" href="/css/main.css">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .primary-bg {
+            background-color: #F0D7A7;
+        }
+        .secondary-bg {
+            background-color: #8D4821;
+        }
+        .primary-text {
+            color: #F0D7A7;
+        }
+        .secondary-text {
+            color: #8D4821;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 50;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 50%;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+    <body class="primary-bg">
+    <div class="min-h-screen flex flex-col">
+        <header th:replace="fragments/general :: pageHeader(title=' / Items', userData=${user})"></header>
+        <div class="flex flex-grow">
+            <nav class="w-1/4 secondary-bg p-4" th:replace="fragments/general :: sideNav"></nav>
+            <main class="flex-grow p-6">
+                <h1 class="text-2xl font-bold secondary-text">Tables</h1>
+                <br>
+                <div class="overflow-x-auto shadow-md rounded-lg">
+                    <table class="min-w-full bg-white text-center border-collapse border border-gray-300 rounded-lg shadow-lg">
+                        <thead class="secondary-bg text-white uppercase tracking-wider">
+                        <tr>
+                            <th class="px-6 py-3 text-sm font-medium"></th> <!-- Smaller size -->
+                            <th class="px-6 py-3 text-sm font-medium">Count</th> <!-- Smaller size -->
+                            <th class="px-6 py-3 text-sm font-medium">Percent</th> <!-- Smaller size -->
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr class="even:bg-gray-100 odd:bg-white hover:bg-gray-200 transition duration-150 ease-in-out">
+                            <th class="px-6 py-4 text-gray-700 text-base font-semibold"> <!-- Smaller size -->
+                                <label class="stat-label">Available:</label>
+                            </th>
+                            <td class="px-6 py-4 text-gray-700 text-base font-semibold"> <!-- Smaller size -->
+                                <span class="stat-content" th:text="${tableStats.availableCount}"></span>
+                            </td>
+                            <td class="px-6 py-4 text-gray-700 text-base font-semibold"> <!-- Smaller size -->
+                                <span class="stat-content" th:text="${#numbers.formatDecimal(tableStats.getAvailablePercent(), 1, 2)}+'%'"></span>
+                            </td>
+                        </tr>
+                        <tr class="even:bg-gray-100 odd:bg-white hover:bg-gray-200 transition duration-150 ease-in-out">
+                            <th class="px-6 py-4 text-gray-700 text-base font-semibold"> <!-- Smaller size -->
+                                <label class="stat-label">Full:</label>
+                            </th>
+                            <td class="px-6 py-4 text-gray-700 text-base font-semibold"> <!-- Smaller size -->
+                                <span class="stat-content" th:text="${tableStats.fullCount}"></span>
+                            </td>
+                            <td class="px-6 py-4 text-gray-700 text-base font-semibold"> <!-- Smaller size -->
+                                <span class="stat-content" th:text="${#numbers.formatDecimal(tableStats.getFullPercent(), 1, 2)}+'%'"></span>
+                            </td>
+                        </tr>
+                        <tr class="even:bg-gray-100 odd:bg-white hover:bg-gray-200 transition duration-150 ease-in-out">
+                            <th class="px-6 py-4 text-gray-700 text-base font-semibold"> <!-- Smaller size -->
+                                <label class="stat-label">Out Of Service:</label>
+                            </th>
+                            <td class="px-6 py-4 text-gray-700 text-base font-semibold"> <!-- Smaller size -->
+                                <span class="stat-content" th:text="${tableStats.outOfServiceCount}"></span>
+                            </td>
+                            <td class="px-6 py-4 text-gray-700 text-base font-semibold"> <!-- Smaller size -->
+                                <span class="stat-content" th:text="${#numbers.formatDecimal(tableStats.getOutOfServicePercent(), 1, 2)}+'%'"></span>
+                            </td>
+                        </tr>
+                        <tr class="even:bg-gray-100 odd:bg-white hover:bg-gray-200 transition duration-150 ease-in-out">
+                            <th class="px-6 py-4 text-gray-700 text-base font-semibold"> <!-- Smaller size -->
+                                <label class="stat-label">Total:</label>
+                            </th>
+                            <td class="px-6 py-4 text-gray-700 text-base font-semibold"> <!-- Smaller size -->
+                                <span class="stat-content" th:text="${tableStats.totalCount}"></span>
+                            </td>
+                            <td class="px-6 py-4 text-gray-700 text-base font-semibold"></td> <!-- Smaller size -->
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <br><br><br>
+                <h1 class="text-2xl font-bold secondary-text">Products</h1>
+                <br>
+                <div class="overflow-x-auto shadow-md rounded-lg">
+                    <table class="min-w-full bg-white text-center border-collapse border border-gray-300 rounded-lg shadow-lg">
+                            <thead class="secondary-bg text-white uppercase tracking-wider">
+                            <tr>
+                                <th class="px-6 py-3 text-sm font-medium"></th> <!-- Smaller size -->
+                                <th class="px-6 py-3 text-sm font-medium">Count</th> <!-- Smaller size -->
+                                <th class="px-6 py-3 text-sm font-medium">Total Stocks</th> <!-- Smaller size -->
+                                <th class="px-6 py-3 text-sm font-medium">Percent (Item Count)</th> <!-- Smaller size -->
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr class="even:bg-gray-100 odd:bg-white hover:bg-gray-200 transition duration-150 ease-in-out">
+                                <th class="px-6 py-4 text-gray-700 text-base font-semibold"> <!-- Adjusted size -->
+                                    <label class="stat-label">Food:</label>
+                                </th>
+                                <td class="px-6 py-4 text-gray-700 text-base font-semibold"> <!-- Adjusted size -->
+                                    <span class="stat-content" th:text="${itemStats.mealCount}"></span>
+                                </td>
+                                <td class="px-6 py-4 text-gray-700 text-base font-semibold"> <!-- Adjusted size -->
+                                    <span class="stat-content" th:text="${itemStats.totalMealStocks}"></span>
+                                </td>
+                                <td class="px-6 py-4 text-gray-700 text-base font-semibold"> <!-- Adjusted size -->
+                                    <span class="stat-content" th:text="${#numbers.formatDecimal(itemStats.getMealPercent(), 1, 2)}+'%'"></span>
+                                </td>
+                            </tr>
+                            <tr class="even:bg-gray-100 odd:bg-white hover:bg-gray-200 transition duration-150 ease-in-out">
+                                <th class="px-6 py-4 text-gray-700 text-base font-semibold"> <!-- Adjusted size -->
+                                    <label class="stat-label">Beverage:</label>
+                                </th>
+                                <td class="px-6 py-4 text-gray-700 text-base font-semibold"> <!-- Adjusted size -->
+                                    <span class="stat-content" th:text="${itemStats.beverageCount}"></span>
+                                </td>
+                                <td class="px-6 py-4 text-gray-700 text-base font-semibold"> <!-- Adjusted size -->
+                                    <span class="stat-content" th:text="${itemStats.totalBeverageStocks}"></span>
+                                </td>
+                                <td class="px-6 py-4 text-gray-700 text-base font-semibold"> <!-- Adjusted size -->
+                                    <span class="stat-content" th:text="${#numbers.formatDecimal(itemStats.getBeveragePercent(), 1, 2)}+'%'"></span>
+                                </td>
+                            </tr>
+                            <tr class="even:bg-gray-100 odd:bg-white hover:bg-gray-200 transition duration-150 ease-in-out">
+                                <th class="px-6 py-4 text-gray-700 text-base font-semibold"> <!-- Adjusted size -->
+                                    <label class="stat-label">Total:</label>
+                                </th>
+                                <td class="px-6 py-4 text-gray-700 text-base font-semibold"> <!-- Adjusted size -->
+                                    <span class="stat-content" th:text="${itemStats.totalCount}"></span>
+                                </td>
+                                <td class="px-6 py-4 text-gray-700 text-base font-semibold"> <!-- Adjusted size -->
+                                    <span class="stat-content" th:text="${#numbers.formatDecimal(itemStats.getTotalStocks(), 1, 0)}"></span>
+                                </td>
+                                <td class="px-6 py-4 text-gray-700 text-base font-semibold"></td> <!-- Empty for total percentage -->
+                            </tr>
+                            </tbody>
+                        </table>
+
+                </div>
+                <br><br><br>
+                <h1 class="text-2xl font-bold secondary-text">Orders</h1>
+                <br>
+
+                <div class="overflow-x-auto shadow-md rounded-lg">
+                    <table class="min-w-full bg-white text-center border-collapse border border-gray-300 rounded-lg shadow-lg">
+                        <thead class="secondary-bg text-white uppercase tracking-wider">
+                        <tr>
+                            <th class="px-6 py-3 text-md font-medium"></th>
+                            <th class="px-6 py-3 text-md font-medium">Count</th>
+                            <th class="px-6 py-3 text-md font-medium">Change</th>
+                            <th class="px-6 py-3 text-md font-medium">Cash</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr class="even:bg-gray-100 odd:bg-white hover:bg-gray-200 transition duration-150 ease-in-out">
+                            <th class="px-6 py-4 text-gray-700 text-lg font-semibold">
+                                <label class="stat-label">Today:</label>
+                            </th>
+                            <td class="px-6 py-4 text-gray-700 text-lg font-semibold">
+                                <span class="stat-content" th:text="${orderStats.orderCountToday}"></span>
+                            </td>
+                            <td class="px-6 py-4 text-gray-700 text-lg font-semibold">
+                                <span class="stat-content" th:text="${orderStats.getTodayPercentToYesterday()}+' (Compared to yesterday)'"></span>
+                            </td>
+                            <td class="px-6 py-4 text-gray-700 text-lg font-semibold">
+                                <span class="stat-content" th:text="${orderStats.cashToday}"></span>
+                            </td>
+                        </tr>
+                        <tr class="even:bg-gray-100 odd:bg-white hover:bg-gray-200 transition duration-150 ease-in-out">
+                            <th class="px-6 py-4 text-gray-700 text-lg font-semibold">
+                                <label class="stat-label">Yesterday:</label>
+                            </th>
+                            <td class="px-6 py-4 text-gray-700 text-lg font-semibold">
+                                <span class="stat-content" th:text="${orderStats.orderCountYesterday}"></span>
+                            </td>
+                            <td class="px-6 py-4 text-gray-700 text-lg font-semibold"></td>
+                            <td class="px-6 py-4 text-gray-700 text-lg font-semibold">
+                                <span class="stat-content" th:text="${orderStats.cashYesterday}"></span>
+                            </td>
+                        </tr>
+                        <tr class="even:bg-gray-100 odd:bg-white hover:bg-gray-200 transition duration-150 ease-in-out">
+                            <th class="px-6 py-4 text-gray-700 text-lg font-semibold">
+                                <label class="stat-label">Current Week:</label>
+                            </th>
+                            <td class="px-6 py-4 text-gray-700 text-lg font-semibold">
+                                <span class="stat-content" th:text="${orderStats.orderCountCurrentWeek}"></span>
+                            </td>
+                            <td class="px-6 py-4 text-gray-700 text-lg font-semibold">
+                                <span class="stat-content" th:text="${orderStats.getCurrentWeekRatioToLastWeek()}+' (Compared to last week)'"></span>
+                            </td>
+                            <td class="px-6 py-4 text-gray-700 text-lg font-semibold">
+                                <span class="stat-content" th:text="${orderStats.cashCurrentWeek}"></span>
+                            </td>
+                        </tr>
+                        <tr class="even:bg-gray-100 odd:bg-white hover:bg-gray-200 transition duration-150 ease-in-out">
+                            <th class="px-6 py-4 text-gray-700 text-lg font-semibold">
+                                <label class="stat-label">Current Month:</label>
+                            </th>
+                            <td class="px-6 py-4 text-gray-700 text-lg font-semibold">
+                                <span class="stat-content" th:text="${orderStats.orderCountCurrentMonth}"></span>
+                            </td>
+                            <td class="px-6 py-4 text-gray-700 text-lg font-semibold">
+                                <span class="stat-content" th:text="${orderStats.getCurrentMonthRatioToLastMonth()}+' (Compared to last month)'"></span>
+                            </td>
+                            <td class="px-6 py-4 text-gray-700 text-lg font-semibold">
+                                <span class="stat-content" th:text="${orderStats.cashCurrentMonth}"></span>
+                            </td>
+                        </tr>
+                        <tr class="even:bg-gray-100 odd:bg-white hover:bg-gray-200 transition duration-150 ease-in-out">
+                            <th class="px-6 py-4 text-gray-700 text-lg font-semibold">
+                                <label class="stat-label">Last Week:</label>
+                            </th>
+                            <td class="px-6 py-4 text-gray-700 text-lg font-semibold">
+                                <span class="stat-content" th:text="${orderStats.orderCountLastWeek}"></span>
+                            </td>
+                            <td class="px-6 py-4 text-gray-700 text-lg font-semibold"></td>
+                            <td class="px-6 py-4 text-gray-700 text-lg font-semibold">
+                                <span class="stat-content" th:text="${orderStats.cashLastWeek}"></span>
+                            </td>
+                        </tr>
+                        <tr class="even:bg-gray-100 odd:bg-white hover:bg-gray-200 transition duration-150 ease-in-out">
+                            <th class="px-6 py-4 text-gray-700 text-lg font-semibold">
+                                <label class="stat-label">Last Month:</label>
+                            </th>
+                            <td class="px-6 py-4 text-gray-700 text-lg font-semibold">
+                                <span class="stat-content" th:text="${orderStats.orderCountLastMonth}"></span>
+                            </td>
+                            <td class="px-6 py-4 text-gray-700 text-lg font-semibold"></td>
+                            <td class="px-6 py-4 text-gray-700 text-lg font-semibold">
+                                <span class="stat-content" th:text="${orderStats.cashLastMonth}"></span>
+                            </td>
+                        </tr>
+                        <tr class="even:bg-gray-100 odd:bg-white hover:bg-gray-200 transition duration-150 ease-in-out">
+                            <th class="px-6 py-4 text-gray-700 text-lg font-semibold">
+                                <label class="stat-label">Total:</label>
+                            </th>
+                            <td class="px-6 py-4 text-gray-700 text-lg font-semibold">
+                                <span class="stat-content" th:text="${orderStats.totalCount}"></span>
+                            </td>
+                            <td class="px-6 py-4 text-gray-700 text-lg font-semibold"></td>
+                            <td class="px-6 py-4 text-gray-700 text-lg font-semibold"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </main>
+        </div>
+    </div>
+        <script src="/js/dropdownUtils.js" th:src="@{/js/dropdownUtils.js}"></script>
+        <script src="/js/modalUtils.js" th:src="@{/js/modalUtils.js}"></script>
+        <script src="/js/main_page.js" th:src="@{/js/main_page.js}"></script>
+    </body>
+</html>

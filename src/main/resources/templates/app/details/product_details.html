@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Item Details</title>
+
+    <link rel="stylesheet" href="/css/main.css" th:href="@{/css/main.css}">
+    <link rel="stylesheet" href="/css/modal.css" th:href="@{/css/modal.css}">
+    <link rel="stylesheet" href="/css/details.css" th:href="@{/css/details.css}">
+    <link rel="stylesheet" href="/css/items.css" th:href="@{/css/itemDetails.css}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .primary-bg {
+            background-color: #F0D7A7;
+        }
+        .secondary-bg {
+            background-color: #8D4821;
+        }
+        .primary-text {
+            color: #F0D7A7;
+        }
+        .secondary-text {
+            color: #8D4821;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 50;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 50%;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper primary-bg">
+    <div th:replace="fragments/general :: pageHeader(title=' / Product Details', userData=${user})"></div>
+    <div class="nav side-nav w-1/6 mr-4" th:replace="fragments/general :: sideNav(navList = ${navlist})"></div>
+
+    <div class="overflow-x-auto shadow-lg rounded-lg mt-8 mx-auto max-w-4xl p-4 bg-white">
+        <div class="tableWrapper mx-auto w-full p-2">
+            <div class="tableHeader mb-6">
+                <h2 class="context-title text-4xl font-bold text-[#8D4821] border-[#8D4821] pb-3 border-b-2"
+                    th:text="'Item '+${productDetails.productId}"></h2>
+            </div>
+
+            <!-- Table with no border -->
+            <table class="min-w-full text-left rounded-lg shadow-lg">
+                <tbody class="divide-y divide-gray-300">
+                <tr class="bg-[#F0D7A7] text-[#8D4821]">
+                    <th class="p-4 text-left font-semibold text-sm">ID:</th>
+                    <td class="p-4 text-center text-sm" th:text="${productDetails.productId}"></td>
+                </tr>
+                <tr>
+                    <th class="p-4 text-left font-semibold text-sm text-[#8D4821]">Price:</th>
+                    <td class="p-4 text-center text-sm" th:text="${productDetails.price}"></td>
+                </tr>
+                <tr class="bg-[#F0D7A7] text-[#8D4821]">
+                    <th class="p-4 text-left font-semibold text-sm">Name:</th>
+                    <td class="p-4 text-center text-sm" th:text="${productDetails.name}"></td>
+                </tr>
+                <tr>
+                    <th class="p-4 text-left font-semibold text-sm text-[#8D4821]">Stock:</th>
+                    <td class="p-4 text-center text-sm" th:text="${productDetails.stock}"></td>
+                </tr>
+                <tr class="bg-[#F0D7A7] text-[#8D4821]">
+                    <th class="p-4 text-left font-semibold text-sm">Type:</th>
+                    <td class="p-4 text-center text-sm" th:text="${productDetails.itemType}"></td>
+                </tr>
+                <tr>
+                    <th class="p-4 text-left font-semibold text-sm text-[#8D4821]">Image:</th>
+                    <td class="p-4 text-center text-sm">
+                        <img th:src="@{/file/{fileName}(fileName=${productDetails.image})}" alt="Product Image"
+                             class="w-48 h-48 object-cover rounded-lg mx-auto">
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <!-- TailwindCSS Styled Buttons -->
+            <div class="controls flex space-x-4 mt-6 justify-center" id="itemControls">
+                <button id="addStockButton" sec:authorize="hasAnyAuthority('ADMIN', 'MANAGER')"
+                        th:onclick="'javascript:createStockUpdatePopup('+${productDetails.productId}+')'"
+                        class="bg-green-500 text-white px-6 py-2.5 text-base hover:bg-green-600 transition-transform transform hover:scale-105"
+                        style="border-radius: 12px;">
+                    Add Stock
+                </button>
+
+                <button id="updatePriceButton"
+                        th:onclick="'javascript:updatePrice('+${productDetails.productId}+')'"
+                        class="bg-blue-500 text-white px-6 py-2.5 text-base hover:bg-blue-600 transition-transform transform hover:scale-105"
+                        style="border-radius: 12px;">
+                    Update Price
+                </button>
+
+                <button id="deleteItemButton"
+                        th:onclick="'javascript:deleteItem('+${productDetails.productId}+')'"
+                        class="bg-red-500 text-white px-6 py-2.5 text-base hover:bg-red-600 transition-transform transform hover:scale-105"
+                        style="border-radius: 12px;">
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/dropdownUtils.js"></script>
+<script src="/js/modalUtils.js"></script>
+<script src="/js/itemUtils.js"></script>
+</body>
+</html>

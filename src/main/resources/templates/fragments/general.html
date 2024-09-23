@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Include Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+<div class="page-header" id="pageHeader" th:fragment="pageHeader(title, userData)" style="background-color:#F0D7A7;">
+    <a class="big-title" href="/table" th:text="'Bakery Management System '" style="color: #8D4821;">Bakery Management System</a>
+    <div class="corner-container">
+        <div class="dropdown" id="userDropdown">
+            <span class="dropdown-text">
+                <span th:text="${userData.firstName}" class="font-semibold" style="color: #8D4821;"></span>
+            </span>
+            <div class="dropdown-content">
+                <form id="logoutForm" th:action="@{/logout}" method="post">
+                    <h3 style="color: #8D4821;">Role</h3>
+                    <span th:text="${userData.role}"></span>
+                    <input type="submit" id="logoutButton" value="Logout" class="bg-red-500 text-white px-4 py-2 rounded" style="background-color: red; color: white;">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="nav side-nav" th:fragment="sideNav" style="background-color: #F0D7A7;">
+    <a class="nav-item py-2 hover:bg-opacity-90 transition duration-300 rounded-lg flex items-center" href="/table" style="color: #8D4821;">
+        <img src="/table.png" alt="Home Icon" class="w-5 h-5">
+        <span>Tables</span>
+    </a>
+    <a class="nav-item py-2 hover:bg-opacity-90 transition duration-300 rounded-lg flex items-center" href="/products" style="color: #8D4821;">
+        <img src="/product.png" alt="Home Icon" class="w-5 h-5">
+        <span>Products</span>
+    </a>
+    <a class="nav-item py-2 hover:bg-opacity-90 transition duration-300 rounded-lg flex items-center" href="/orders" style="color: #8D4821;">
+        <img src="/orders.png" alt="Home Icon" class="w-5 h-5">
+        <span>Orders</span>
+    </a>
+    <a class="nav-item py-2 hover:bg-opacity-90 transition duration-300 rounded-lg flex items-center" href="/insights" style="color: #8D4821;">
+        <img src="/insights.png" alt="Home Icon" class="w-5 h-5">
+        <span>Insights</span>
+    </a>
+</div>
+</body>
+</html>
